@@ -12,7 +12,6 @@ const whatsappCliente = new Client({
     })
 })
 
-
 whatsappCliente.on('qr',(qr) => {
     console.log('Escanea el codigo para conectarte')
     qrcode.generate(qr, {small: true})
