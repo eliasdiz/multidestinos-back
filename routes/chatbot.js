@@ -1,11 +1,14 @@
 import express from 'express'
 import controller from '../Controllers/Chatbot.js'
 
-const { chat } = controller
+
+const { sendMessage} = controller
+
 
 
 const router = express.Router()
 
-router.post('/', chat)
+    
+router.post('/', sendMessage)
 
 export default router
