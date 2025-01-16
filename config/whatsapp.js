@@ -1,73 +1,64 @@
 import pkg from 'whatsapp-web.js'
-import qrcode from 'qrcode-terminal'
-// import controller from '../Controllers/Chatbot.js'
+import qrcode from 'qrcode-terminal';
+import handleMessage from '../Controllers/handleMessage.js';
 
 
-// const { handleTextMessage } = controller
-const { Client, LocalAuth} = pkg
+const { Client, LocalAuth } = pkg
 
-const whatsappCliente = new Client({
+
+const client = new Client({
     authStrategy: new LocalAuth({
-        clientId: 'multidesnitos-session'
+        clientId: 'multidestinos-session'
     })
-})
+})    
 
-whatsappCliente.on('qr',(qr) => {
+
+client.on('qr', (qr) => {
     console.log('Escanea el codigo para conectarte')
-    qrcode.generate(qr, {small: true})
+    qrcode.generate(qr, { small: true });
+});
+
+client.on('authenticated',() => {
+    console.log('CuchoBot autenticado')
 })
 
-whatsappCliente.on('ready',() => {
-    try {
-        console.log('CuchoBot esta listo!!!')
-    } catch (error) {
-        console.log(error)
-    }
-})
+client.on('ready', () => {
+console.log('CuchoBot conectado y listo!!!');
+});
 
-whatsappCliente.on('authenticated',() => {
-    try {
-        console.log('CuchoBot autenticado')
-    } catch (error) {
-        console.log(error)
-    }
-})
-
-whatsappCliente.on('auth_failure',() => {
-    console.error('error de autenticacion')
-})
-
-whatsappCliente.on('disconnected',(reason) => {
-    console.log('CuchoBot desconectado', reason)
-    console.log('Reconectando...')
-    whatsappCliente.initialize()
-})
-
-whatsappCliente.on('message', async (msg) => {
-    try {
-        console.log(`Mensaje recibido de ${msg.from}: ${msg.body}`);
-
-        const respuesta = await handleIncomingMessage(msg);
-
-        if (respuesta) {
-            await msg.reply(respuesta);
-        }
-    } catch (error) {
-        console.log('Error al procesar el mensaje:', error);
+client.on('disconnected', (reason) => {
+    console.log('CuchoBot se desconectó:', reason);
+    if (reason === 'UNPAIRED' || reason === 'UNPAIRED_IDLE') {
+        console.log('Parece que se cerró la sesión en el dispositivo móvil.');
+    } else {
+        console.log('Intentando reconectar...');
+        client.initialize();
     }
 });
 
-async function handleIncomingMessage(msg) {
-    const body = msg.body.toLowerCase();
-    
-    if (body === 'hola') {
-        return '¡Hola! Soy el CuchoBot, ¿en qué puedo ayudarte?';
-    } else if (body === 'test1') {
-        return 'Probando respuestas automáticas. ¡Todo está funcionando correctamente!';
-    } else {
-        return 'Lo siento, no entendí tu mensaje. Prueba con "hola" o "test1".';
+// Monitorear cambios de estado
+client.on('change_state', (state) => {
+    console.log('Estado de conexión:', state);
+    if (state === 'DISCONNECTED') {
+        console.log('CuchoBot está desconectado. Verifica si el dispositivo móvil tiene conexión a internet o está encendido.');
+    }else if(state === 'CONNECTED'){
+        console.log('CuchoBot conectado y listo!!!');
     }
-}
+});
 
 
-export default whatsappCliente
+// Maneja los mensajes recibidos
+// client.on('message', async (message) => {
+//     const chat = await message.getChat()
+//     const contact = await message.getContact()
+//     const name = contact.pushname
+
+//     console.log(`${name}: ${message.body}`)
+
+// });
+
+client.on('message', (message) => handleMessage(message,client) )
+
+client.initialize();
+
+export default client;
