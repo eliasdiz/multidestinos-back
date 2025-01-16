@@ -1,3 +1,5 @@
+import openai from "../config/openai.js"
+
 const delay = (ms) => new Promise( res => setTimeout(res,ms))
 
 const handleMessage = async (message,client) => {
@@ -13,20 +15,33 @@ const handleMessage = async (message,client) => {
         if (/^(hola|buenas|informacion)$/i.test(clientMessage)){
             await delay(400)
             await chat.sendStateTyping()
-            await client.sendMessage(message.from,`Hola ${name} bienvenido a multidestinos, escoge un numero para ser atentito por uno de nuestros asesores:\n 1. FlaquiFley \n 2. CuchoBot 🤖 \n 3. Brandi  `)
-            
+            await client.sendMessage(message.from,`Hola ${name} bienvenido a multidestinos, escoge un numero para ser atentito por CuchoBot 🤖 `)
+        }else {
+            await delay(400);
+            await chat.sendStateTyping();
+
+            // let prompt = clientMessage
+            // Generar respuesta con OpenAI
+            try {
+            const response = await openai.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [{role: 'user', content: clientMessage }],
+                max_tokens: 150,
+                temperature: 0.7,
+            });
+
+            const botResponse = response.data.choices[0].text.trim();
+
+            await client.sendMessage(message.from, botResponse);
+            } catch (error) {
+                console.log(error)
+            console.error('Error al interactuar con OpenAI:', error.message);
+            await client.sendMessage(
+                message.from,
+                'Lo siento, hubo un problema al procesar tu solicitud. Intenta de nuevo más tarde.'
+            );
+            }
         }
-        await delay(400)
-        if(clientMessage === '1'){
-            await chat.sendStateTyping()
-            await client.sendMessage(message.from,`Hola soy FlaquiFley tu asistente virtual en que te puedo ayudar el dia de hoy?`)
-        }else if(clientMessage === '2'){
-            await chat.sendStateTyping()
-            await client.sendMessage(message.from,`Hola soy CuchoBot 🤖 tu asistente virtual en que te puedo ayudar el dia de hoy?`)
-        }else if(clientMessage === '3'){
-            await chat.sendStateTyping()
-            await client.sendMessage(message.from,`Hola soy Brandi 🥚 to to te... tu asistente virtual en que te puedo ayudar el dia de hoy?`)
-        }      
     }
 
     

@@ -47,15 +47,6 @@ client.on('change_state', (state) => {
 });
 
 
-// Maneja los mensajes recibidos
-// client.on('message', async (message) => {
-//     const chat = await message.getChat()
-//     const contact = await message.getContact()
-//     const name = contact.pushname
-
-//     console.log(`${name}: ${message.body}`)
-
-// });
 
 client.on('message', (message) => handleMessage(message,client) )
 
