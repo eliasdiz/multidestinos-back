@@ -1,55 +1,65 @@
-import pkg from 'whatsapp-web.js'
-import qrcode from 'qrcode-terminal';
-import handleMessage from '../Controllers/handleMessage.js';
+import whatsappPKG from 'whatsapp-web.js'
+import qrCode from 'qrcode-terminal'
+import mongoose from 'mongoose'
+import { MongoStore } from 'wwebjs-mongo'
+
+const { Client, RemoteAuth } = whatsappPKG
 
 
-const { Client, LocalAuth } = pkg
+mongoose.set('strictQuery', false)
+mongoose.connect(process.env.MONGO)
+    .then(async () => {
+        const store = new MongoStore({ mongoose: mongoose });
 
+        const client = new Client({
+            authStrategy: new RemoteAuth({
+                clientId: 'cuchoBot',
+                store: store,
+                backupSyncIntervalMs: 60000
+            })
+        });
 
-const client = new Client({
-    authStrategy: new LocalAuth({
-        clientId: 'multidestinos-session'
+        // console.log(mongoose.connection.readyState)
+        
+        const generateQR = client.on('qr',(qr) => {
+            console.log('🔄 Generando QR')
+            setTimeout(() => {
+                qrCode.generate(qr,{small: true})
+            }, 4000);
+        })
+
+        const session = await store.sessionExists({session: 'cuchoBot'})
+
+        if(session){
+            console.log('✔️ sesion encontrada...')
+        }else{
+            console.log('🚀 Iniciando CuchoBot 🤖')
+            generateQR
+        }
+        
+
+        client.on('remote_session_saved',() => {
+            console.log('session guardada con exito ✅')
+            console.log('CuchoBot Listo 🤖')
+        })
+
+        client.on('ready',() => {
+            console.log('CuchoBot Listo 🤖')
+        })
+        
+        client.on('disconnected',async (state) =>{
+            console.log('❌ Usuario cerro sesion')
+            if(state === 'LOGOUT'){
+                await store.delete({session: 'cuchoBot'})
+                console.log('✔️ Sesion eliminada')
+                console.log('🔄 Esperando nueva autenticación...')
+                // client.logout()
+                // generateQR
+            }
+        })
+        
+
+        client.initialize()
+
     })
-})    
-
-
-client.on('qr', (qr) => {
-    console.log('Escanea el codigo para conectarte')
-    qrcode.generate(qr, { small: true });
-});
-
-client.on('authenticated',() => {
-    console.log('CuchoBot autenticado')
-})
-
-client.on('ready', () => {
-console.log('CuchoBot conectado y listo!!!');
-});
-
-client.on('disconnected', (reason) => {
-    console.log('CuchoBot se desconectó:', reason);
-    if (reason === 'UNPAIRED' || reason === 'UNPAIRED_IDLE') {
-        console.log('Parece que se cerró la sesión en el dispositivo móvil.');
-    } else {
-        console.log('Intentando reconectar...');
-        client.initialize();
-    }
-});
-
-// Monitorear cambios de estado
-client.on('change_state', (state) => {
-    console.log('Estado de conexión:', state);
-    if (state === 'DISCONNECTED') {
-        console.log('CuchoBot está desconectado. Verifica si el dispositivo móvil tiene conexión a internet o está encendido.');
-    }else if(state === 'CONNECTED'){
-        console.log('CuchoBot conectado y listo!!!');
-    }
-});
-
-
-
-client.on('message', (message) => handleMessage(message,client) )
-
-client.initialize();
-
-export default client;
+    .catch((error) => console.log(error))
