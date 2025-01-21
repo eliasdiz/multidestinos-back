@@ -26,6 +26,8 @@
     "puppeteer": "^24.1.0",
     "puppeteer-core": "^24.1.0",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.26.0"
+    "socket.io": "^4.8.1",
+    "whatsapp-web.js": "^1.26.0",
+    "wwebjs-mongo": "^1.1.0"
   }
 }
