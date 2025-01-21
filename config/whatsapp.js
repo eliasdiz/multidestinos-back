@@ -15,26 +15,25 @@ mongoose.connect(process.env.MONGO)
             authStrategy: new RemoteAuth({
                 clientId: 'cuchoBot',
                 store: store,
-                backupSyncIntervalMs: 60000
-            })
+                backupSyncIntervalMs: 1800000
+            }),
+            puppeteer: {
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            }
         });
-
-        // console.log(mongoose.connection.readyState)
         
-        const generateQR = client.on('qr',(qr) => {
-            console.log('🔄 Generando QR')
-            setTimeout(() => {
-                qrCode.generate(qr,{small: true})
-            }, 4000);
-        })
-
         const session = await store.sessionExists({session: 'cuchoBot'})
 
         if(session){
             console.log('✔️ sesion encontrada...')
         }else{
-            console.log('🚀 Iniciando CuchoBot 🤖')
-            generateQR
+            console.log('🚀 Iniciando CuchoBot 🤖')     
+            client.on('qr',(qr) => {
+                console.log('🔄 Generando QR')
+                setTimeout(() => {
+                    qrCode.generate(qr,{small: true})
+                }, 4000);
+            })
         }
         
 
@@ -42,19 +41,16 @@ mongoose.connect(process.env.MONGO)
             console.log('session guardada con exito ✅')
             console.log('CuchoBot Listo 🤖')
         })
-
-        client.on('ready',() => {
-            console.log('CuchoBot Listo 🤖')
-        })
         
         client.on('disconnected',async (state) =>{
             console.log('❌ Usuario cerro sesion')
             if(state === 'LOGOUT'){
+                await mongoose.connection.db.collection('RemoteAuth').deleteMany({});
                 await store.delete({session: 'cuchoBot'})
                 console.log('✔️ Sesion eliminada')
-                console.log('🔄 Esperando nueva autenticación...')
-                // client.logout()
-                // generateQR
+                setTimeout(() => {
+                    console.log('🔄 Esperando nueva autenticación...')
+                }, 2000);
             }
         })
         
