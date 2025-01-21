@@ -41,10 +41,6 @@ mongoose.connect(process.env.MONGO)
             console.log('session guardada con exito ✅')
             console.log('CuchoBot Listo 🤖')
         })
-
-        // client.on('ready',() => {
-        //     console.log('CuchoBot Listo 🤖')
-        // })
         
         client.on('disconnected',async (state) =>{
             console.log('❌ Usuario cerro sesion')
@@ -55,7 +51,6 @@ mongoose.connect(process.env.MONGO)
                 setTimeout(() => {
                     console.log('🔄 Esperando nueva autenticación...')
                 }, 2000);
-                // client.logout()
             }
         })
         
