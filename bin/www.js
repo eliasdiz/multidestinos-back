@@ -2,7 +2,7 @@ import app from '../app.js';
 import debug from 'debug';
 const logger = debug('multidestinos:server')
 import http from 'http'
-// import setupSocket from '../config/whatsapp.js';
+import setupSocket from '../config/socketIO.js';
 
 /**
  * Get port from environment and store in Express.
@@ -18,7 +18,7 @@ app.set('port', port);
 const server = http.createServer(app);
 
 
-// setupSocket(server)
+setupSocket(server)
 
 
 /**

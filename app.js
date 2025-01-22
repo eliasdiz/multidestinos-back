@@ -1,8 +1,8 @@
 import express from 'express'
 import path from 'path';
 import 'dotenv/config.js'
-// import './config/mongo.js'
 import './config/whatsapp.js'
+import './config/socketIO.js'
 import cookieParser from 'cookie-parser';
 import logger from 'morgan'
 import { __dirname } from './utils.js';

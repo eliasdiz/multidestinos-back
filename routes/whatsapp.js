@@ -1,11 +1,10 @@
 import express from 'express'
-// import controller from '../Controllers/whatsapp.js'
+// import controller from '../Controllers/auth.js'
 
-
-// const { getQrCode } = controller
+// const { generarQR } = controller
 
 const router = express.Router()
 
-// router.get('/qr',getQrCode)
+// router.get('/qr',generarQR)
 
 export default router
