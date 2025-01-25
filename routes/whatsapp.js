@@ -1,10 +1,10 @@
 import express from 'express'
-// import controller from '../Controllers/auth.js'
+import controller from '../Controllers/auth.js'
 
-// const { generarQR } = controller
+const { sesion } = controller
 
 const router = express.Router()
 
-// router.get('/qr',generarQR)
+router.get('/auth',sesion)
 
 export default router
