@@ -37,7 +37,6 @@ const setupSocket = (server) => {
         io.emit('autenticado',{state: true})
     })
 
-    // clien
 
 
 };
