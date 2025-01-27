@@ -17,7 +17,7 @@ const controller  = {
                     })
             }else{
                 return res
-                    .status(400)
+                    .status(200)
                     .json({
                         message: 'sesion no encontrada',
                         status: false
