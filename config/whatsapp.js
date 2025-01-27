@@ -24,14 +24,12 @@ const client = new Client({
 mongoose.set('strictQuery', false)
 mongoose.connect(process.env.MONGO)
     .then(async () => {
-
         
-            
         
         client.on('disconnected',async (state) =>{
             console.log('❌ Usuario cerro sesion')
             if(state === 'LOGOUT'){
-                await mongoose.connection.db.collection('RemoteAuth').deleteMany({});
+                // await mongoose.connection.db.collection('RemoteAuth').deleteMany({});
                 await store.delete({session: 'cuchoBot'})
                 console.log('✔️ Sesion eliminada')
                 setTimeout(() => {
