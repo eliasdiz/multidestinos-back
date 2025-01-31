@@ -33,6 +33,17 @@ const controllers = {
         } catch (error) {
             next(error);
         }
+    },
+
+    getOpciones: async (req,res,next) => {
+        try {
+            let opciones = await Opciones.find()
+            return res
+                .status(200)
+                .json({opciones})
+        } catch (error) {
+            next(error)
+        }
     }
 };
 
